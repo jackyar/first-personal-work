@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>词云图</title>
+    <script type="text/javascript" src="lib/echarts.min.js"></script>
+    <script type="text/javascript" src="lib/echarts-wordcloud.js"></script>
+	<style>
+        html, body, #content { 
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+    </style>
+	
+</head>
+<body>
+	<!-- 词云图展示： -->
+	<div id="content"></div>
+	<!-- 处理请求json数据， 并通过echarts完成渲染 -->
+	<script>
+		// 初始化echarts到展示的div节点
+		var chart = echarts.init(document.getElementById('content'));
+		// 页面加载完毕后 处理数据和生成云图的逻辑
+		window.onload = function () {
+            var url = "data/comments.json" // tomcat服务器json文件的资源地址
+            // 实例化XMLHttpRequest 对象，用于浏览器在后台与服务器交换数据。
+            var request = new XMLHttpRequest();
+            request.open("get", url); // 初始化http请求参数
+            // 发送请求，但不发送数据给服务器
+            request.send(null);
+            /*XHR对象获取到返回信息后执行*/
+            request.onload = function () {
+            	/*返回状态为200 或者readyState等于4，即为数据获取成功*/
+                if (request.status == 200 || request.readyState == 4) {
+                    // 使用JSON对象解析返回的信息
+                    var arraylist = JSON.parse(request.responseText).data;
+                    console.log(arraylist); // 打印数组，验证数据格式是否正确
+                    // 设置云图的配置参数列表
+                    chart.setOption({
+                    	series: [ {
+			                type: 'wordCloud', // 类型
+			                sizeRange: [12, 60], //文本大小范围，数据中的值将被映射到该范围
+			                //文字旋转范围和程度步骤。文本将随机在范围[-90，90]
+			                //通过rotationStep 45旋转
+			                rotationRange: [-90, 90], 
+			                rotationStep: 45,
+
+			                gridSize: 2, //在像素网格的尺寸用于标记画布的可用性
+			                shape: 'star', // 星形
+			                drawOutOfBound: false, // 是否允许画布外部绘制单词
+			                textStyle: { // 文字样式
+			                    color: function () {
+			                        return 'rgb(' + [
+			                            Math.round(Math.random() * 160),
+			                            Math.round(Math.random() * 160),
+			                            Math.round(Math.random() * 160)
+			                        ].join(',') + ')';
+			                    }
+			                },
+			                emphasis: { 
+					            focus: 'self',
+					            textStyle: {					            	
+					                shadowBlur: 10,
+					                shadowColor: '#333'
+					                // color: 'red'
+					            }
+					        },
+
+					        //数据是一个数组。每个数组项必须具有name和value属性。
+			                data: arraylist // 渲染的数据
+			            } ]
+                    });
+                }
+            }
+       }     
+        window.onresize = chart.resize; // 自适应画布
+	</script>
+</body>
+</html>
