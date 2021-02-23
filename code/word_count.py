@@ -10,9 +10,9 @@ def write_to_file(words_dict):
     data = list()
     for item in words_dict:
         # print(item)
-        if item[1] < 10:
+        if item[1] < 30:
             break
-        data.append({"word": item[0], "value": item[1]})
+        data.append({"name": item[0], "value": item[1]})
     json_dict["data"] = data
     with open('../data/comments.json', 'a', encoding='utf-8') as file:
         json.dump(json_dict, file, ensure_ascii=False)
